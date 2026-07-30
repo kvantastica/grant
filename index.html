@@ -769,34 +769,47 @@
         const botToken = '8986023299:AAFRP5Y52Mg13_Nv5jCF8SrqwEClpjK5iIE'; // например, '123456:ABC-DEF1234ghIkl'
         const chatId = '-1003999577805';      // например, '123456789'
 
-        const message = `🆕 *Новая заявка на грант!*
-👤 ФИО представителя: ${fullname}
-📞 Телефон: ${phone}
-✉️ Почта: ${email}`;
+        // Преобразуем дату из YYYY-MM-DD в ДД.ММ.ГГГГ
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
 
-        fetch(`https://telegram-proxy.workemail240421.workers.dev/bot${botToken}/sendMessage`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                chat_id: chatId,
-                text: message,
-                parse_mode: 'Markdown'
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка отправки в Telegram, статус: ' + response.status);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('✅ Отправлено в Telegram:', data);
-        })
-        .catch(error => {
-            console.error('❌ Ошибка Telegram:', error);
-        });
+// Формируем сообщение только с нужными полями
+const message = `🆕 *Новая заявка на грант!*
+
+👤 *Родитель:* ${fullname}
+📞 *Телефон:* ${phone}
+📩 *Почта:* ${email}
+👶 *Ребёнок:* ${studentName}
+🎂 *Дата рождения:* ${formatDate(birthDate)}`;
+
+// Отправляем через ваш Worker
+fetch('https://telegram-proxy.workemail240421.workers.dev/bot' + botToken + '/sendMessage', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown'
+    })
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Ошибка отправки в Telegram, статус: ' + response.status);
+    }
+    return response.json();
+})
+.then(data => {
+    console.log('✅ Отправлено в Telegram:', data);
+})
+.catch(error => {
+    console.error('❌ Ошибка Telegram:', error);
+});
+
 
         // Логируем в консоль для отладки
         console.log('📝 Отправлены: ФИО, телефон, почта');
