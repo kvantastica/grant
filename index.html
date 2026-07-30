@@ -776,7 +776,7 @@ function formatDate(dateStr) {
     return `${parts[2]}.${parts[1]}.${parts[0]}`;
 }
 
-// Сообщение только с нужными полями
+// Сообщение
 const message = `🆕 *Новая заявка на грант!*
 
 👤 *Родитель:* ${fullname}
@@ -785,22 +785,30 @@ const message = `🆕 *Новая заявка на грант!*
 👶 *Ребёнок:* ${studentName}
 🎂 *Дата рождения:* ${formatDate(birthDate)}`;
 
-// Формируем URL для GET-запроса (все параметры в адресной строке)
-const url = `https://telegram-proxy.workemail240421.workers.dev/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
-
-fetch(url)
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Ошибка отправки в Telegram, статус: ' + response.status);
-        }
-        return response.json();
+// Отправляем POST-запросом
+fetch('https://telegram-proxy.workemail240421.workers.dev/bot' + botToken + '/sendMessage', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: 'Markdown'
     })
-    .then(data => {
-        console.log('✅ Отправлено в Telegram:', data);
-    })
-    .catch(error => {
-        console.error('❌ Ошибка Telegram:', error);
-    });
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('Ошибка отправки в Telegram, статус: ' + response.status);
+    }
+    return response.json();
+})
+.then(data => {
+    console.log('✅ Отправлено в Telegram:', data);
+})
+.catch(error => {
+    console.error('❌ Ошибка Telegram:', error);
+});
 
 
         // Логируем в консоль для отладки
